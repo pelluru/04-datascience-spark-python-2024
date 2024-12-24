@@ -1,0 +1,7 @@
+{"commitInfo":{"timestamp":384868747,"operation":"CONVERT","operationParameters":{"catalogTable":"`spark_catalog`.`default`.`lake4`","numFiles":4,"partitionedBy":"[]","sourceFormat":"parquet","collectStats":false},"readVersion":-1,"isolationLevel":"Serializable","isBlindAppend":false,"operationMetrics":{"numConvertedFiles":"4"},"engineInfo":"Apache-Spark/3.5.3 Delta-Lake/3.2.1","txnId":"91d6cb45-8958-458b-96f0-008737903eef"}}
+{"metaData":{"id":"0e0b15f1-9c5c-40c2-a089-cea05cef5f84","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"language\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"num_speakers\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{},"createdTime":1735082431009}}
+{"add":{"path":"part-00000-fd03e100-da34-4e65-9754-e23eeb53b3ae-c000.snappy.parquet","partitionValues":{},"size":415,"modificationTime":1735082429715,"dataChange":true}}
+{"add":{"path":"part-00002-fd03e100-da34-4e65-9754-e23eeb53b3ae-c000.snappy.parquet","partitionValues":{},"size":752,"modificationTime":1735082429710,"dataChange":true}}
+{"add":{"path":"part-00005-fd03e100-da34-4e65-9754-e23eeb53b3ae-c000.snappy.parquet","partitionValues":{},"size":745,"modificationTime":1735082429725,"dataChange":true}}
+{"add":{"path":"part-00007-fd03e100-da34-4e65-9754-e23eeb53b3ae-c000.snappy.parquet","partitionValues":{},"size":745,"modificationTime":1735082429715,"dataChange":true}}
+{"protocol":{"minReaderVersion":1,"minWriterVersion":2}}
