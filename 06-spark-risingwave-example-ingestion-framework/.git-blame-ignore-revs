@@ -1,0 +1,47 @@
+# chore: split plan.proto and rename projection to project #2083
+d57c97d4393733a4d3016e35b737f5cd6681aa05
+
+# chore: remove v2 naming related to legacy frontend #2572
+59a023ef55880c67c29c0d6d18f1d40370faa544
+
+# refactor(stream): remove executor v1 #2240
+2d30fda2459e223507a5ec3aa39c1c0b2e30fff9
+
+# refactor(batch): rename executor2 to executor #2842
+9ff2f46867cbcd743c3ebc49eac2a7a9a80993d4
+
+# style(proto): unify StreamPlanNode and BatchPlanNode style #2255
+56d2f5635bc5a3d2bb3403c59e175fefede45afa
+
+# refactor(stream): rename executor_v2 back to executor #2292
+f2c5758789ddd22ba6edbfeb6d7f5279ac919f9c
+
+# chore: rename rust -> src #1551
+0f2d391c420276bf8ae36f7c619ba32a64be5bb6
+
+# chore: fix typos & add typo checker to ci #4767
+0019e5914beec085fb1d36350d10e85f4b528929
+
+# style: introduce some lints (#5511)
+e7b7842826035b645bc4feddf5ef315d0935e35e
+
+# chore: use rustflags for lints (#5508)
+055107da6b969d31cd6aca396f4d9ed209845391
+
+# test: split input/output for planner test (#9902)
+f8266748dcb70541da944664552c1944ff8362e4
+
+# feat(risedev): add check for trailing spaces in `risedev check` (#11294)
+f2a3fd021059e680b35b24c63cff5f8dbe9f9d5f
+
+# chore(rustfmt): format let-chains and let-else #9409
+d70dba827c303373f3220c9733f7c7443e5c2d37
+
+# chore: cargo +nightly fmt (#13162) (format let-chains)
+c583e2c6c054764249acf484438c7bf7197765f4
+
+# chore: replace all ProstXxx with PbXxx (#8621)
+6fd8821f2e053957b183d648bea9c95b6703941f
+
+# chore: cleanup v2 naming for sql metastore (#18941)
+9a6a7f9052d5679165ff57cc01417c742c95351c

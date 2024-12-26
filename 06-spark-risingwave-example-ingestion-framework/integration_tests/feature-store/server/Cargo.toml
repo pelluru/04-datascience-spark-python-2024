@@ -1,0 +1,24 @@
+[workspace]
+members = []
+
+[package]
+name = "server"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+tonic = "0.11.0"
+rdkafka = { version = "0.34", features = ["cmake-build"] }
+prost = "0.12"
+clap = "4.4.6"
+tokio-postgres = "0.7.10"
+
+[build-dependencies]
+tonic-build = "0.11.0"
+
+[[bin]]
+name = "server"
+path = "src/main.rs"

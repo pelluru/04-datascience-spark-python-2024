@@ -1,0 +1,104 @@
+[package]
+name = "risingwave_meta"
+version = { workspace = true }
+edition = { workspace = true }
+homepage = { workspace = true }
+keywords = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[dependencies]
+anyhow = "1"
+arc-swap = "1"
+assert_matches = "1"
+async-trait = "0.1"
+base64-url = { version = "3.0.0" }
+bytes = { version = "1", features = ["serde"] }
+chrono = "0.4"
+clap = { workspace = true }
+comfy-table = "7"
+crepe = "0.1"
+easy-ext = "1"
+educe = "0.6"
+either = "1"
+enum-as-inner = "0.6"
+fail = "0.5"
+futures = { version = "0.3", default-features = false, features = ["alloc"] }
+hex = "0.4"
+http = "1"
+itertools = { workspace = true }
+jsonbb = { workspace = true }
+maplit = "1.0.2"
+notify = { version = "7", default-features = false, features = [
+    "macos_fsevent",
+] }
+num-integer = "0.1"
+num-traits = "0.2"
+otlp-embedded = { workspace = true }
+parking_lot = { workspace = true }
+prometheus = "0.13"
+prometheus-http-query = "0.8"
+prost = { workspace = true }
+rand = { workspace = true }
+risingwave_backup = { workspace = true }
+risingwave_common = { workspace = true }
+risingwave_common_heap_profiling = { workspace = true }
+risingwave_connector = { workspace = true }
+risingwave_hummock_sdk = { workspace = true }
+risingwave_license = { workspace = true }
+risingwave_meta_dashboard = { workspace = true }
+risingwave_meta_model = { workspace = true }
+risingwave_meta_model_migration = { workspace = true }
+risingwave_object_store = { workspace = true }
+risingwave_pb = { workspace = true }
+risingwave_rpc_client = { workspace = true }
+risingwave_sqlparser = { workspace = true }
+rw_futures_util = { workspace = true }
+scopeguard = "1.2.0"
+sea-orm = { workspace = true }
+serde = { version = "1.0.196", features = ["derive"] }
+serde_json = "1.0.113"
+strum = { version = "0.26", features = ["derive"] }
+sync-point = { path = "../utils/sync-point" }
+thiserror = "1"
+thiserror-ext = { workspace = true }
+tokio = { version = "0.2", package = "madsim-tokio", features = [
+    "rt",
+    "rt-multi-thread",
+    "sync",
+    "macros",
+    "time",
+    "signal",
+] }
+tokio-retry = "0.3"
+tokio-stream = { workspace = true }
+tonic = { workspace = true }
+tower = { version = "0.5", features = ["util", "load-shed"] }
+tracing = "0.1"
+uuid = { version = "1", features = ["v4"] }
+
+[target.'cfg(not(madsim))'.dependencies]
+axum = { workspace = true }
+tower-http = { version = "0.6", features = [
+    "add-extension",
+    "cors",
+    "fs",
+    "compression-gzip",
+] }
+workspace-hack = { path = "../workspace-hack" }
+
+[dev-dependencies]
+assert_matches = "1"
+expect-test = "1.5"
+rand = { workspace = true }
+risingwave_hummock_sdk = { workspace = true, features = ["test"] }
+risingwave_test_runner = { workspace = true }
+tempfile = "3"
+tracing-subscriber = "0.3"
+
+[features]
+test = []
+failpoints = ["fail/failpoints"]
+
+[lints]
+workspace = true

@@ -1,0 +1,50 @@
+[package]
+name = "risedev"
+version = { workspace = true }
+edition = { workspace = true }
+homepage = { workspace = true }
+keywords = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[dependencies]
+anyhow = { version = "1", features = ["backtrace"] }
+chrono = { version = "0.4", default-features = false, features = [
+    "clock",
+    "std",
+] }
+clap = { workspace = true }
+console = "0.15"
+fs-err = "3.0.0"
+glob = "0.3"
+google-cloud-pubsub = "0.29"
+indicatif = "0.17"
+itertools = { workspace = true }
+log = "0.4"
+rdkafka = { workspace = true }
+redis = "0.25"
+regex = "1"
+reqwest = { version = "0.12.2", features = ["blocking"] }
+serde = { version = "1", features = ["derive"] }
+serde_with = "3"
+serde_yaml = "0.9"
+sqlx = { workspace = true, features = ["any"] }
+tempfile = "3"
+thiserror-ext = { workspace = true }
+tokio = { version = "0.2", package = "madsim-tokio", features = [
+    "rt",
+    "rt-multi-thread",
+    "sync",
+    "macros",
+    "time",
+    "signal",
+    "fs",
+] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+url = "2"
+workspace-hack = { path = "../workspace-hack" }
+yaml-rust = "0.4"
+
+[lints]
+workspace = true

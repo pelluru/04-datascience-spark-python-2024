@@ -1,0 +1,214 @@
+query TTTTT
+select interval '500' year, interval '-50' month, interval '5' hour, interval '5' minute, interval '5' second;
+----
+500 years -4 years -2 mons 05:00:00 00:05:00 00:00:05
+
+query TTTTT
+SELECT interval '1 year', interval '1 y', interval '1 yr';
+----
+1 year 1 year 1 year
+
+query TTTTT
+SELECT interval '2 month', interval '2 mon';
+----
+2 mons 2 mons
+
+query TTTTT
+SELECT interval '3 day';
+----
+3 days
+
+query TTTTT
+SELECT interval '4 hour';
+----
+04:00:00
+
+query TTTTT
+SELECT interval '5 minute', interval '2 m';
+----
+00:05:00 00:02:00
+
+query TTTTT
+SELECT interval '6 second';
+----
+00:00:06
+
+query T
+SELECT '6'::interval;
+----
+00:00:06
+
+query T
+SELECT concat(5, 'minute')::interval;
+----
+00:05:00
+
+query T
+SELECT interval '1' month = interval '30' day;
+----
+t
+
+query T
+SELECT interval '1' day = interval '24' hour;
+----
+t
+
+query T
+SELECT interval '1' day = interval '86400' second;
+----
+t
+
+query T
+SELECT interval '1' day - interval '12' hour = interval '12' hour;
+----
+t
+
+query T
+SELECT 1.5 * INTERVAL '3 mins';
+----
+00:04:30
+
+query T
+SELECT INTERVAL '3 mins' * 1.5;
+----
+00:04:30
+
+# https://github.com/risingwavelabs/risingwave/issues/3873
+query T
+select distinct * from (values (interval '1' month), (interval '30' day)) as t;
+----
+1 mon
+
+query T
+select distinct * from (values (interval '30' day), (interval '1' month)) as t;
+----
+1 mon
+
+query T
+select distinct * from (values (interval '720' hour), (interval '1' month)) as t;
+----
+1 mon
+
+query TTTTTT
+select interval '1 year 1 month 1 day 1';
+----
+1 year 1 mon 1 day 00:00:01
+
+query TTTTTT
+select interval '1 year 1 month 1 day 1:';
+----
+1 year 1 mon 1 day 01:00:00
+
+query TTTTTT
+select interval '1 year 1 month 1 day 1:1';
+----
+1 year 1 mon 1 day 01:01:00
+
+query TTTTTT
+select interval '1 year 1 month 1 day 1:1:1.009';
+----
+1 year 1 mon 1 day 01:01:01.009
+
+# issue #7059
+query T
+select '1 mons 1 days 00:00:00.000001'::INTERVAL;
+----
+1 mon 1 day 00:00:00.000001
+
+query T
+select '1 mons 1 days 00:00:00.0000001'::INTERVAL;
+----
+1 mon 1 day
+
+# parsing large values
+
+query T
+select '2562047788:00:54.775807'::interval;
+----
+2562047788:00:54.775807
+
+statement error
+select '2562047788:00:54.775808'::interval;
+
+query T
+select '4 years 2147483599 mon'::interval;
+----
+178956970 years 7 mons
+
+statement error
+select '4 years 2147483600 mon'::interval;
+
+query T
+select '-2562047788:00:54.775807'::interval;
+----
+-2562047788:00:54.775807
+
+query T
+select '-2562047788:00:54.775808'::interval;
+----
+-2562047788:00:54.775808
+
+statement error
+select '-2562047788:00:54.775809'::interval;
+
+query T
+values
+	('12:34:56.1234564'::interval),
+	('12:34:56.1234566'::interval),
+	('12:34:56.1234565'::interval),
+	('12:34:56.1234555'::interval);
+----
+12:34:56.123456
+12:34:56.123457
+12:34:56.123456
+12:34:56.123456
+
+query T
+select interval '3 mons -3 days' / 2;
+----
+1 mon 14 days -12:00:00
+
+query T
+with t(v, d) as (values
+	('00:00:00.000003'::interval, 2),
+	('00:00:00.000005', 2),
+	('1 day', 16384),
+	('3 day', 16384),
+	('1 month', 32768),
+	('3 month', 32768))
+select v / d from t;
+----
+00:00:00.000002
+00:00:00.000002
+00:00:05.273438
+00:00:15.820312
+00:01:19.101562
+00:03:57.304688
+
+query T
+select 'P1Y2M3DT4H5M6S'::interval;
+----
+1 year 2 mons 3 days 04:05:06
+
+query T
+select 'P0Y0M0DT0H0M0S'::interval;
+----
+00:00:00
+
+query T
+select 'P12Y2M30DT4H5M0.1234567S'::interval;
+----
+12 years 2 mons 30 days 04:05:00.123456
+
+statement error
+select 'P0Y0M0DT0H0M0S1'::interval;
+
+# The following is an overflow bug present in PostgreSQL 15.2
+# Their `days` overflows to a negative value, leading to the latter smaller
+# than the former. We report an error in this case.
+
+statement ok
+select interval '2147483647 mons 2147483647 days' * 0.999999991;
+
+statement error out of range
+select interval '2147483647 mons 2147483647 days' * 0.999999992;

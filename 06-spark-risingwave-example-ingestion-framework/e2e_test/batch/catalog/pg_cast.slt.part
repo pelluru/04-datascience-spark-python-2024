@@ -1,0 +1,118 @@
+query IIIT
+SELECT * FROM pg_catalog.pg_cast;
+----
+0 16 23 e
+1 16 1043 a
+2 21 23 i
+3 21 20 i
+4 21 700 i
+5 21 701 i
+6 21 1700 i
+7 21 1043 a
+8 21 1301 i
+9 23 16 e
+10 23 21 a
+11 23 20 i
+12 23 700 i
+13 23 701 i
+14 23 1700 i
+15 23 1043 a
+16 23 1301 i
+17 20 21 a
+18 20 23 a
+19 20 700 i
+20 20 701 i
+21 20 1700 i
+22 20 1043 a
+23 20 20 e
+24 20 1301 i
+25 700 21 a
+26 700 23 a
+27 700 20 a
+28 700 701 i
+29 700 1700 a
+30 700 1043 a
+31 701 21 a
+32 701 23 a
+33 701 20 a
+34 701 700 a
+35 701 1700 a
+36 701 1043 a
+37 1700 21 a
+38 1700 23 a
+39 1700 20 a
+40 1700 700 i
+41 1700 701 i
+42 1700 1043 a
+43 1082 1043 a
+44 1082 1114 i
+45 1082 1184 i
+46 1043 16 e
+47 1043 21 e
+48 1043 23 e
+49 1043 20 e
+50 1043 700 e
+51 1043 701 e
+52 1043 1700 e
+53 1043 1082 e
+54 1043 1083 e
+55 1043 1114 e
+56 1043 1184 e
+57 1043 1186 e
+58 1043 17 e
+59 1043 3802 e
+60 1043 1301 e
+61 1083 1043 a
+62 1083 1186 i
+63 1114 1082 a
+64 1114 1043 a
+65 1114 1083 a
+66 1114 1184 i
+67 1184 1082 a
+68 1184 1043 a
+69 1184 1083 a
+70 1184 1114 a
+71 1186 1043 a
+72 1186 1083 a
+73 17 1043 a
+74 3802 16 e
+75 3802 21 e
+76 3802 23 e
+77 3802 20 e
+78 3802 700 e
+79 3802 701 e
+80 3802 1700 e
+81 3802 1043 a
+82 20 20 e
+83 1301 701 e
+84 1301 1043 a
+
+query TT rowsort
+SELECT s.typname, t.typname
+FROM pg_catalog.pg_cast as c, pg_catalog.pg_type as s, pg_catalog.pg_type as t
+WHERE
+	castcontext = 'i'
+	and c.castsource = s.oid and c.casttarget = t.oid;
+----
+date	timestamp
+date	timestamptz
+float4	float8
+int2	float4
+int2	float8
+int2	int4
+int2	int8
+int2	numeric
+int2	rw_int256
+int4	float4
+int4	float8
+int4	int8
+int4	numeric
+int4	rw_int256
+int8	float4
+int8	float8
+int8	numeric
+int8	rw_int256
+numeric	float4
+numeric	float8
+time	interval
+timestamp	timestamptz

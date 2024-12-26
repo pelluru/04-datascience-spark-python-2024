@@ -1,0 +1,78 @@
+statement ok
+SET RW_IMPLICIT_FLUSH TO true;
+
+statement ok
+create table t1 (v1 int, v2 int);
+
+statement ok
+create table t2 (v3 int, v4 int, v5 int);
+
+statement ok
+insert into t1 values (1, 2);
+
+statement ok
+insert into t2 values (3, 4, 5);
+
+statement ok
+insert into t2 values (1, 2, 3);
+
+query I
+with cte as (select v1, v2 from t1) select v1 from cte;
+----
+1
+
+query I
+with cte as (select v3 v3a from t1 inner join t2 on t1.v1 = t2.v3) select v3a from cte;
+----
+1
+
+query I
+with cte as (select v3, v4 from t2) select t1.v1 from t1 inner join cte on t1.v2 = cte.v4;
+----
+1
+
+query I rowsort
+with cte1 as (select v3, v4 from t2), cte2 as (select v3 from cte1) select v3 from cte2;
+----
+1
+3
+
+query II
+with t1 as (values(100, 200)) select * from t1;
+----
+100 200
+
+query II
+with t1 as (values(100, 200)) select * from public.t1;
+----
+1 2
+
+query I rowsort
+with c as (values(1)) select * from (with c as (values(2)) select * from c) foo union all select * from c order by 1;
+----
+1
+2
+
+query I rowsort
+with table1 as ( select 1 as n), table2 as ( select 2 as n), table3 as ( select 3 as n) select * from table1 union select * from table2 union select * from table3;
+----
+1
+2
+3
+
+statement ok
+drop table t1;
+
+statement ok
+drop table t2;
+
+# more tests for alias https://github.com/risingwavelabs/risingwave/issues/12526
+query I
+with cte as (select 1) select x from cte t(x);
+----
+1
+
+query I
+with cte(a) as (select 1,2) select x,y from cte t(x,y);
+----
+1 2

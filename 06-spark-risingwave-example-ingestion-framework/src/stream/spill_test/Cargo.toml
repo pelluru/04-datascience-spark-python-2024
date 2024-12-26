@@ -1,0 +1,20 @@
+[package]
+name = "risingwave_mem_table_spill_test"
+version = { workspace = true }
+edition = { workspace = true }
+homepage = { workspace = true }
+keywords = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[dependencies]
+risingwave_common = { workspace = true }
+risingwave_hummock_test = { workspace = true, features = ["test"] }
+risingwave_stream = { workspace = true }
+tokio = { version = "0.2", package = "madsim-tokio" }
+
+[dev-dependencies]
+risingwave_hummock_sdk = { workspace = true }
+
+[lints]
+workspace = true

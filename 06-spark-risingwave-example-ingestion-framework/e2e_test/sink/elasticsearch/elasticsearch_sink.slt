@@ -1,0 +1,90 @@
+statement ok
+set sink_decouple = false;
+
+statement ok
+CREATE TABLE t7 (
+  v1 int primary key,
+  v2 bigint,
+  v3 varchar,
+  d date,
+  t time,
+  ts timestamp,
+  tz timestamptz,
+  st struct<st1 int, st2 int>,
+);
+
+statement ok
+CREATE TABLE test_route (
+  v1 int primary key,
+  v2 int,
+  v3 varchar,
+);
+
+statement ok
+CREATE SINK test_route_sink from test_route WITH (
+    connector = 'elasticsearch',
+    index = 'test_route',
+    url = 'http://elasticsearch:9200',
+    username = 'elastic',
+    password = 'risingwave',
+    routing_column = 'v3'
+);
+
+statement ok
+CREATE SINK s7 from t7 WITH (
+    connector = 'elasticsearch',
+    index = 'test',
+    url = 'http://elasticsearch:9200',
+    username = 'elastic',
+    password = 'risingwave'
+);
+
+statement ok
+CREATE SINK s8 from t7 WITH (
+    connector = 'elasticsearch',
+    index = 'test1',
+    primary_key = 'v1,v3',
+    url = 'http://elasticsearch:9200',
+    username = 'elastic',
+    password = 'risingwave',
+    delimiter = '_'
+);
+
+statement ok
+INSERT INTO test_route VALUES
+  (1,1,'test1'),
+  (2,2,'test2'),
+  (3,3,'test3');
+
+statement ok
+INSERT INTO t7 VALUES
+  (1, 2, '1-2', '1970-01-01', '00:00:00', '1970-01-01 00:00:00', '1970-01-01 00:00:00Z',(1,1)),
+  (2, 2, '2-2', '1970-01-01', '00:00:00', '1970-01-01 00:00:00', '1970-01-01 00:00:00Z',(2,2)),
+  (3, 2, '3-2', '1970-01-01', '00:00:00.123456', '1970-01-01 00:00:00.123456', '1970-01-01 00:00:00.123456Z',(3,3)),
+  (5, 2, '5-2', '1970-01-01', '20:00:00', '1970-01-01 00:00:00', '1970-01-01 00:00:00Z',(5,5)),
+  (8, 2, '8-2', '1970-01-01', '20:00:00', '1970-01-01 00:00:00', '1970-01-01 00:00:00Z',(8,8)),
+  (13, 2, '13-2', '1970-01-01', '20:00:00.123456', '1970-01-01 20:00:00.123456', '1970-01-01 20:00:00.123456Z',(13,13));
+
+statement ok
+FLUSH;
+
+statement ok
+INSERT INTO t7 VALUES (1, 50, '1-50', '2000-01-01', '00:00:00.123456', '2000-01-01 00:00:00.123456', '2000-01-01 00:00:00.123456Z',(1,1));
+
+statement ok
+FLUSH;
+
+statement ok
+DROP SINK s7;
+
+statement ok
+DROP SINK s8;
+
+statement ok
+DROP SINK test_route_sink;
+
+statement ok
+DROP TABLE test_route;
+
+statement ok
+DROP TABLE t7;

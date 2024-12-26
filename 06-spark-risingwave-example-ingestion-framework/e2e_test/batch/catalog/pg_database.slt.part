@@ -1,0 +1,4 @@
+query ITIITT
+SELECT datname, encoding, datcollate, datctype, datistemplate, datallowconn, datconnlimit, dattablespace FROM pg_catalog.pg_database where datname = 'dev';
+----
+dev 6 C C f t -1 1663

@@ -1,0 +1,88 @@
+statement ok
+create table t (v int);
+
+connection txn
+statement ok
+insert into t values (1), (2);
+
+connection txn
+statement ok
+flush;
+
+connection txn
+statement ok
+SET VISIBILITY_MODE TO checkpoint;
+
+connection txn
+statement ok
+start transaction read only;
+
+skipif in-memory
+connection txn
+query I
+select count(*) from t;
+----
+2
+
+# ensure the snapshot is synchronized to the `other` connection
+connection other
+statement ok
+flush;
+
+skipif in-memory
+connection other
+query I
+select count(*) from t;
+----
+2
+
+connection other
+statement ok
+insert into t values (3);
+
+connection other
+statement ok
+flush;
+
+# inserts are visible in the `other` connection,
+skipif in-memory
+connection other
+query I
+select count(*) from t;
+----
+3
+
+# ...but not in the read-only transaction
+skipif in-memory
+connection txn
+query I
+select count(*) from t;
+----
+2
+
+connection txn
+statement ok
+flush;
+
+# still invisible even after flush
+skipif in-memory
+connection txn
+query I
+select count(*) from t;
+----
+2
+
+connection txn
+statement ok
+commit;
+
+# now visible outside the transaction
+skipif in-memory
+connection txn
+query I
+select count(*) from t;
+----
+3
+
+statement ok
+drop table t;

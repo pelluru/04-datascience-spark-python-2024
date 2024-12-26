@@ -1,0 +1,27 @@
+auto-retry: &auto-retry
+  automatic:
+    # Agent terminated because the AWS EC2 spot instance killed by AWS.
+    - signal_reason: agent_stop
+      limit: 3
+
+steps:
+  # You may update `gen-integration-test-yaml.py` to add integration test case
+  - label: "gen and upload integration test pipeline"
+    command: "ci/scripts/gen-integration-test-yaml.py"
+
+  # Notification test.
+  - key: "test-notify"
+    if: build.message =~ /test-notify/i
+    command: |
+      bash -c 'echo test && exit -1'
+
+  - wait: true
+    continue_on_failure: true
+    allow_dependency_failure: true
+
+  # Notifies on test failure for certain tests.
+  # You may update `notify.py` to add tests and people to notify.
+  # This should be the LAST part of this file.
+  - label: "trigger failed test notification"
+    if: build.source == "schedule"
+    command: "ci/scripts/notify.py"

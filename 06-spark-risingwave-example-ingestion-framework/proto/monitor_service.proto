@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package monitor_service;
+
+option java_package = "com.risingwave.proto";
+option optimize_for = SPEED;
+
+message StackTraceRequest {}
+
+message StackTraceResponse {
+  map<uint32, string> actor_traces = 1;
+  map<string, string> rpc_traces = 2;
+  map<string, string> compaction_task_traces = 3;
+  map<uint64, string> inflight_barrier_traces = 4;
+  map<uint32, string> barrier_worker_state = 5; // key: worker id
+  map<uint32, string> jvm_stack_traces = 6; // key: worker id. Might be empty if the worker doesn't run JVM.
+}
+
+// CPU profiling
+message ProfilingRequest {
+  // How long the profiling should last.
+  uint64 sleep_s = 1;
+}
+
+message ProfilingResponse {
+  bytes result = 1;
+}
+
+// Heap profiling
+message HeapProfilingRequest {
+  // The directory that the dumped file in
+  string dir = 1;
+}
+
+message HeapProfilingResponse {}
+
+message ListHeapProfilingRequest {}
+message ListHeapProfilingResponse {
+  string dir = 1;
+  repeated string name_manually = 2;
+  repeated string name_auto = 3;
+}
+
+// Analyze dumped files
+message AnalyzeHeapRequest {
+  // The file path
+  string path = 1;
+}
+
+message AnalyzeHeapResponse {
+  bytes result = 1;
+}
+
+// Back pressure
+message GetBackPressureRequest {}
+
+message BackPressureInfo {
+  uint32 fragment_id = 1;
+  uint32 downstream_fragment_id = 2;
+  uint32 actor_count = 3;
+  double value = 4;
+}
+
+message FragmentStats {
+  uint32 actor_count = 2;
+  uint64 current_epoch = 3;
+}
+
+message RelationStats {
+  uint32 actor_count = 2;
+  uint64 current_epoch = 3;
+}
+
+message GetBackPressureResponse {
+  repeated BackPressureInfo back_pressure_infos = 1;
+  map<uint32, FragmentStats> fragment_stats = 2;
+  map<uint32, RelationStats> relation_stats = 3;
+}
+
+message TieredCacheTracingRequest {
+  bool enable = 1;
+  optional uint32 record_hybrid_insert_threshold_ms = 2;
+  optional uint32 record_hybrid_get_threshold_ms = 3;
+  optional uint32 record_hybrid_obtain_threshold_ms = 4;
+  optional uint32 record_hybrid_remove_threshold_ms = 5;
+  optional uint32 record_hybrid_fetch_threshold_ms = 6;
+}
+
+message TieredCacheTracingResponse {}
+
+service MonitorService {
+  rpc StackTrace(StackTraceRequest) returns (StackTraceResponse);
+  rpc Profiling(ProfilingRequest) returns (ProfilingResponse);
+  rpc HeapProfiling(HeapProfilingRequest) returns (HeapProfilingResponse);
+  rpc ListHeapProfiling(ListHeapProfilingRequest) returns (ListHeapProfilingResponse);
+  rpc AnalyzeHeap(AnalyzeHeapRequest) returns (AnalyzeHeapResponse);
+  rpc GetBackPressure(GetBackPressureRequest) returns (GetBackPressureResponse);
+  rpc TieredCacheTracing(TieredCacheTracingRequest) returns (TieredCacheTracingResponse);
+}

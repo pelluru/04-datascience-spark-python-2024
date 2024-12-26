@@ -1,0 +1,33 @@
+// Copy this file to .vscode/launch.json and edit it to your needs
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            // Use this if you want to debug risedev p locally
+            "name": "Launch playground debug",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceRoot}/target/debug/risingwave",
+            "args": [
+                "playground"
+            ],
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": "build rw bin"
+        },
+        {
+            "name": "Open playground coredump",
+            "type": "lldb",
+            "request": "custom",
+            "targetCreateCommands": [
+                "target create ${workspaceFolder}/target/debug/risingwave --core ${input:coreFileName}"
+            ],
+        }
+    ],
+    "inputs": [
+        {
+            "id": "coreFileName",
+            "type": "promptString",
+            "description": "Enter core file path"
+        }
+    ]
+}

@@ -1,0 +1,59 @@
+[package]
+name = "risingwave_cmd"
+version = { workspace = true }
+edition = { workspace = true }
+homepage = { workspace = true }
+keywords = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+
+[features]
+rw-static-link = ["workspace-config/rw-static-link"]
+rw-dynamic-link = ["workspace-config/rw-dynamic-link"]
+openssl-vendored = ["workspace-config/openssl-vendored"]
+default = ["rw-static-link"]
+
+[package.metadata.cargo-machete]
+ignored = ["workspace-hack", "workspace-config", "task_stats_alloc"]
+
+[package.metadata.cargo-udeps.ignore]
+normal = ["workspace-hack", "workspace-config", "task_stats_alloc"]
+
+[dependencies]
+clap = { workspace = true }
+risingwave_batch_executors = { workspace = true }
+risingwave_common = { workspace = true }
+risingwave_compactor = { workspace = true }
+risingwave_compute = { workspace = true }
+risingwave_ctl = { workspace = true }
+risingwave_expr_impl = { workspace = true }
+risingwave_frontend = { workspace = true }
+risingwave_meta_node = { workspace = true }
+risingwave_rt = { workspace = true }
+tikv-jemallocator = { workspace = true, features = [
+    "unprefixed_malloc_on_supported_platforms",
+] }
+tokio = { version = "0.2", package = "madsim-tokio", features = [
+    "rt",
+    "rt-multi-thread",
+    "sync",
+    "macros",
+    "time",
+    "signal",
+    "fs",
+    "tracing",
+] }
+
+workspace-config = { path = "../utils/workspace-config" }
+workspace-hack = { path = "../workspace-hack" }
+
+[lib]
+test = false
+
+[[bin]]
+name = "risectl"
+path = "src/bin/ctl.rs"
+test = false
+
+[lints]
+workspace = true

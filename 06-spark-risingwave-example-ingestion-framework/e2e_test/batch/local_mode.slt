@@ -1,0 +1,22 @@
+statement ok
+SET RW_IMPLICIT_FLUSH TO true;
+
+statement ok
+SET QUERY_MODE TO local;
+
+include ./basic/**/*.slt.part
+include ./duckdb/all.slt.part
+include ./order/*.slt.part
+include ./join/*.slt.part
+include ./join/*/*.slt.part
+include ./aggregate/*.slt.part
+include ./types/**/*.slt.part
+include ./catalog/*.slt.part
+include ./functions/*.slt.part
+include ./over_window/main.slt.part
+include ./subquery/**/*.slt.part
+
+statement ok
+SET QUERY_MODE TO auto;
+
+# This test should not be running in parallel mode

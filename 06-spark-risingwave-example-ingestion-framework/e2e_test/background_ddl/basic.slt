@@ -1,0 +1,105 @@
+statement ok
+SET BACKGROUND_DDL=true;
+
+statement ok
+ALTER SYSTEM SET max_concurrent_creating_streaming_jobs TO 4;
+
+statement ok
+CREATE TABLE t (v1 int);
+
+statement ok
+INSERT INTO t select * from generate_series(1, 100000);
+
+statement ok
+FLUSH;
+
+statement ok
+SET BACKFILL_RATE_LIMIT=10000;
+
+statement ok
+CREATE MATERIALIZED VIEW m1 as SELECT * FROM t;
+
+statement ok
+CREATE MATERIALIZED VIEW m2 as SELECT * FROM t;
+
+query I
+select count(*) from rw_catalog.rw_ddl_progress;
+----
+2
+
+statement error
+SELECT * FROM m1;
+
+# Meta should always reject duplicate mview.
+statement error
+CREATE MATERIALIZED VIEW m2 as SELECT * FROM t;
+
+statement ok
+wait;
+
+query I
+select count(*) from m1;
+----
+100000
+
+query I
+select count(*) from m2;
+----
+100000
+
+statement ok
+DROP MATERIALIZED VIEW m1;
+
+statement ok
+DROP MATERIALIZED VIEW m2;
+
+statement ok
+DROP TABLE t;
+
+################### Test stream now
+
+statement ok
+create table t (v1 timestamp with time zone, v2 timestamp with time zone);
+
+statement ok
+insert into t select to_timestamp(x) as z, to_timestamp(x) as y from generate_series(1, 1000) t(x);
+
+statement ok
+set backfill_rate_limit=1;
+
+statement ok
+create materialized view m1 as select * from t where v1 >= now() and v2 >= now();
+
+sleep 2s
+
+query I
+select count(*) from rw_catalog.rw_ddl_progress;
+----
+1
+
+statement ok
+recover;
+
+sleep 5s
+
+query I
+select count(*) from rw_catalog.rw_ddl_progress;
+----
+1
+
+statement ok
+drop materialized view m1;
+
+query I
+select count(*) from rw_catalog.rw_ddl_progress;
+----
+0
+
+statement ok
+drop table t;
+
+statement ok
+SET BACKGROUND_DDL=false;
+
+statement ok
+ALTER SYSTEM SET max_concurrent_creating_streaming_jobs TO 1;

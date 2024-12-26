@@ -1,0 +1,12 @@
+query T
+select array[array[1, 2], array[3, 4]];
+----
+{{1,2},{3,4}}
+
+query T
+select array[[1, 2], [3, 4]];
+----
+{{1,2},{3,4}}
+
+query error sql parser error
+select array[[array[1, 2]], [[3, 4]]];

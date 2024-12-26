@@ -1,0 +1,34 @@
+extend = "common.toml"
+
+[env]
+# Look at the index for latest versions:
+# https://downloads.apache.org/maven/maven-3/
+MAVEN_VERSION = "3.9.6"
+MAVEN_DOWNLOAD_PATH = "${PREFIX_TMP}/maven.tar.gz"
+
+[tasks.download-maven]
+private = true
+category = "RiseDev - Components"
+dependencies = ["prepare"]
+condition = { env_set = [ "ENABLE_BUILD_RW_CONNECTOR" ] }
+description = "Download Maven"
+script = '''
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if !(command -v javac &> /dev/null && [[ "$(javac -version 2>&1 | awk '{print $2}' | cut -d. -f1)" -ge 11 ]]); then
+  echo "JDK 11+ is not installed. Please install JDK 11+ first."
+  exit 1
+fi
+
+if (command -v mvn &> /dev/null) || [ -d "${PREFIX_BIN}/maven" ]; then
+    exit 0
+else
+    echo "Maven is not installed. Downloading now..."
+    curl -sSL "https://downloads.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" -o "${MAVEN_DOWNLOAD_PATH}"
+    tar -xzf "${MAVEN_DOWNLOAD_PATH}" -C "${PREFIX_TMP}"
+    mv "${PREFIX_TMP}/apache-maven-${MAVEN_VERSION}" "${PREFIX_BIN}/maven"
+    echo "Maven has been installed to ${PREFIX_BIN}."
+fi
+'''

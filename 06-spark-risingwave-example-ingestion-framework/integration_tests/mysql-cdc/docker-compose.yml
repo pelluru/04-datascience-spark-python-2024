@@ -1,0 +1,80 @@
+---
+services:
+  risingwave-standalone:
+    extends:
+      file: ../../docker/docker-compose.yml
+      service: risingwave-standalone
+  postgres-0:
+    extends:
+      file: ../../docker/docker-compose.yml
+      service: postgres-0
+  grafana-0:
+    extends:
+      file: ../../docker/docker-compose.yml
+      service: grafana-0
+  minio-0:
+    extends:
+      file: ../../docker/docker-compose.yml
+      service: minio-0
+  prometheus-0:
+    extends:
+      file: ../../docker/docker-compose.yml
+      service: prometheus-0
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "8306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+      - MYSQL_DATABASE=mydb
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p123456" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    container_name: mysql
+  mysql_prepare:
+    image: mysql:8.0
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - "./compatibility-mysql.sql:/compatibility-mysql.sql"
+    command:
+      - /bin/sh
+      - -c
+      - "mysql -h mysql -u root -P 3306 mydb --password=123456 -A < /compatibility-mysql.sql"
+  rw_prepare:
+    image: postgres
+    depends_on:
+      mysql_prepare:
+        condition: service_completed_successfully
+      risingwave-standalone:
+        condition: service_healthy
+    volumes:
+      - "./compatibility-rw.sql:/compatibility-rw.sql"
+    command:
+      - /bin/sh
+      - -c
+      - "psql postgresql://root:@risingwave-standalone:4566/dev < /compatibility-rw.sql"
+  datagen_tpch:
+    image: ghcr.io/risingwavelabs/go-tpc:v0.1
+    depends_on:
+      - mysql
+    command: tpch prepare --sf 1 --threads 4 -H mysql -U root -p '123456' -D mydb -P 3306
+    container_name: datagen_tpch
+    restart: on-failure
+volumes:
+  risingwave-standalone:
+    external: false
+  postgres-0:
+    external: false
+  grafana-0:
+    external: false
+  minio-0:
+    external: false
+  prometheus-0:
+    external: false
+name: risingwave-compose

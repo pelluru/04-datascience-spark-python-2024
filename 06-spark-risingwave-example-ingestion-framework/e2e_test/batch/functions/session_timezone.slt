@@ -1,0 +1,138 @@
+statement ok
+set timezone = "us/pacific";
+
+# Cast date to timestamptz
+query T
+select '2022-01-01'::date::timestamp with time zone;
+----
+2022-01-01 00:00:00-08:00
+
+# Cast timestamp to timestamptz
+query T
+select '2022-01-01 00:00:00'::timestamp::timestamp with time zone;
+----
+2022-01-01 00:00:00-08:00
+
+# Cast timestamptz to timestamp
+query T
+select '2022-01-01 00:00:00+00:00'::timestamp with time zone::timestamp;
+----
+2021-12-31 16:00:00
+
+# Cast timestamptz to date
+query T
+select '2022-01-01 00:00:00+00:00'::timestamp with time zone::date;
+----
+2021-12-31
+
+# Cast timestamptz to time
+query T
+select '2022-01-01 00:00:00+00:00'::timestamp with time zone::time;
+----
+16:00:00
+
+# Compare timestamp with timestamptz
+query T
+select '2022-01-01 00:00:00-08:00'::timestamp with time zone = '2022-01-01 00:00:00'::timestamp;
+----
+t
+
+# Compare date with timestamptz
+query T
+select '2022-01-01 00:00:00-08:00'::timestamp with time zone = '2022-01-01'::date;
+----
+t
+
+# Cast varchar without timezone to timestamptz
+query T
+select '2022-01-01 00:00:00'::timestamp with time zone;
+----
+2022-01-01 00:00:00-08:00
+
+# Cast timestamptz to varchar, should display with timezone information
+query T
+select '2022-01-01 00:00:00-08:00'::timestamp with time zone::varchar;
+----
+2022-01-01 00:00:00-08:00
+
+statement ok
+set timezone = 'europe/london'
+
+# Add/Subtract timestamptz with interval across a daylight savings boundary
+# Daylight savings falls on 2016-10-30 in London timezone
+
+# This should first add the 24 hours crossing the daylight saving boundary from UTC+1->UTC, then the day
+query T
+select '2016-10-29 12:00:00'::timestamptz + interval '24 hours' + interval '1 day';
+----
+2016-10-31 11:00:00+00:00
+
+# This should first add the days at UTC+1->UTC boundary (no change to time), then the hours
+query T
+select (interval '24 hours' + interval '1 day') + '2016-10-29 12:00:00'::timestamptz;
+----
+2016-10-31 12:00:00+00:00
+
+# Test inverse for subtract, only -1 day is applied at the UTC->UTC+1 boundary (no change to time)
+query T
+select '2016-10-31 11:00:00+00:00'::timestamptz - interval '24 hours' - interval '1 day';
+----
+2016-10-29 11:00:00+01:00
+
+# Test inverse for subtract, this time we apply diff 1 day first, then -24 hours at the UTC->UTC+1 boundary
+query T
+select '2016-10-31 11:00:00+00:00'::timestamptz - (interval '24 hours' + interval '1 day');
+----
+2016-10-29 12:00:00+01:00
+
+# Test case from https://github.com/postgres/postgres/blob/REL_15_3/src/backend/utils/adt/timestamp.c#L2697
+
+statement ok
+SET timezone = 'EST5EDT';
+
+query T
+SELECT ('2005-10-30 13:22:00-05:00'::timestamptz - '2005-10-29 13:22:00-04:00'::timestamptz);
+----
+1 day 01:00:00
+
+query T
+SELECT ('2005-10-29 13:22:00-04:00'::timestamptz + ('2005-10-30 13:22:00-05:00'::timestamptz - '2005-10-29 13:22:00-04:00'::timestamptz)) at time zone 'EST';
+----
+2005-10-30 14:22:00
+
+statement ok
+set timezone = 'pst8pdt';
+
+query RRRRRT
+select
+	extract(epoch from '2023-06-01 00:00:00Z'::timestamptz),
+	extract(day from '2023-06-01 00:00:00Z'::timestamptz),
+	round(extract(julian from '2023-06-01 00:00:00Z'::timestamptz), 5),
+	date_part('epoch', '2023-06-01 00:00:00Z'::timestamptz),
+	date_part('day', '2023-06-01 00:00:00Z'::timestamptz),
+	abs(date_part('julian', '2023-06-01 00:00:00Z'::timestamptz) - 2460096.70833) < 1e-5;
+----
+1685577600.000000 31 2460096.70833 1685577600 31 t
+
+query RRRR
+select
+	extract(timezone from '2023-06-01 00:00:00Z'::timestamptz),
+	extract(timezone_hour from '2023-01-01 00:00:00Z'::timestamptz),
+	date_part('timezone', '2023-06-01 00:00:00Z'::timestamptz),
+	date_part('timezone_hour', '2023-01-01 00:00:00Z'::timestamptz);
+----
+-25200 -8 -25200 -8
+
+statement ok
+set timezone = 'UTC';
+
+query RRRRRR
+select
+	extract(epoch from '2023-06-01 00:00:00Z'::timestamptz),
+	extract(day from '2023-06-01 00:00:00Z'::timestamptz),
+	round(extract(julian from '2023-06-01 00:00:00Z'::timestamptz), 5),
+	date_part('epoch', '2023-06-01 00:00:00Z'::timestamptz),
+	date_part('day', '2023-06-01 00:00:00Z'::timestamptz),
+	date_part('julian', '2023-06-01 00:00:00Z'::timestamptz);
+----
+1685577600.000000 1 2460097.00000 1685577600 1 2460097
