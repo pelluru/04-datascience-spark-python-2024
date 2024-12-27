@@ -1,0 +1,3 @@
+customer_id,name,address,city,state,zip_code,phone_number,email,date_of_birth,plan_type
+C003,Imitiaz Ali,789 Oak Ave,Bigcity,JK,9876,91-00000-00002,imtiaz@email.com,03-03-1990,G
+C014,Madison White,987 Elm St,Smallville,MH,55555,91-10000-00013,madisonwhite@email.com,02-02-1985,G
