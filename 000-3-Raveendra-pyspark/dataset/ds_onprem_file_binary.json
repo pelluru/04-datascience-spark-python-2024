@@ -1,0 +1,22 @@
+{
+	"name": "ds_onprem_file_binary",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_onprem_files",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "other_datasets"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation",
+				"fileName": "customers06-12-2020-10-20-55.csv",
+				"folderPath": "customers"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
